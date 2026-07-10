@@ -238,16 +238,22 @@ export function ReviewFlow({ words }: { words: Word[] }) {
                   <p className="text-sm text-zinc-500 mt-2">{currentWord.example_en}</p>
                 </div>
               )}
-              <div className="grid grid-cols-4 gap-3 mt-auto">
-                {ratings.map((r) => (
-                  <button
-                    key={r.label}
-                    onClick={advance}
-                    className={`py-3 text-sm font-medium rounded-lg border transition-colors ${r.className}`}
-                  >
-                    {r.label}
-                  </button>
-                ))}
+              <div className="mt-auto space-y-2">
+                <p className="text-xs text-zinc-500 text-center">How well did you recall it?</p>
+                <div className="grid grid-cols-4 gap-3">
+                  {ratings.map((r) => (
+                    <button
+                      key={r.label}
+                      onClick={advance}
+                      className={`py-3 text-sm font-medium rounded-lg border transition-colors ${r.className}`}
+                    >
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[11px] text-zinc-400 text-center">
+                  Again = forgot &nbsp;·&nbsp; Hard = struggled &nbsp;·&nbsp; Good = normal &nbsp;·&nbsp; Easy = instant
+                </p>
               </div>
             </>
           )}
