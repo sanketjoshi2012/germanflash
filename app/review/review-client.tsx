@@ -139,6 +139,9 @@ export function ReviewFlow({ words }: { words: Word[] }) {
 
   const article = currentWord.gender
   const artColor = genderColor(article)
+  const spokenGerman = article
+    ? `${article} ${currentWord.german}`
+    : currentWord.german
 
   const advance = () => {
     setFlipped(false)
@@ -181,7 +184,7 @@ export function ReviewFlow({ words }: { words: Word[] }) {
               <button
                 onClick={(e) => {
                   e.stopPropagation()
-                  speak(currentWord.german)
+                  speak(spokenGerman)
                 }}
                 className="mt-4 w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 aria-label="Play German audio"
@@ -206,7 +209,7 @@ export function ReviewFlow({ words }: { words: Word[] }) {
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    speak(currentWord.german)
+                    speak(spokenGerman)
                   }}
                   className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors"
                   aria-label="Play German audio"
