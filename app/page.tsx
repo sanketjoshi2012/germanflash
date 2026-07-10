@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -18,12 +19,12 @@ export default async function Home() {
         </div>
 
         <div className="space-y-3">
-          <button
-            disabled
-            className="w-full rounded-md bg-black dark:bg-white text-white dark:text-black text-sm font-medium py-3 opacity-40 cursor-not-allowed"
+          <Link
+            href="/review"
+            className="block w-full rounded-md bg-black dark:bg-white text-white dark:text-black text-sm font-medium py-3 hover:opacity-90 transition-opacity"
           >
-            Start review — coming in step 5
-          </button>
+            Start review
+          </Link>
           <form action="/auth/signout" method="post">
             <button
               type="submit"
