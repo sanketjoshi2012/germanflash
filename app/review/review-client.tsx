@@ -20,6 +20,38 @@ export type Word = {
 
 const ABSTRACT_POS = new Set(['pronoun', 'particle', 'question', 'adverb', 'number'])
 
+const SKIP_IMAGE_ENGLISH = new Set([
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+  'day',
+  'week',
+  'month',
+  'year',
+  'hour',
+  'minute',
+  'time',
+])
+
+const shouldSkipImage = (w: Word): boolean =>
+  ABSTRACT_POS.has(w.part_of_speech) || SKIP_IMAGE_ENGLISH.has(w.english)
+
 const genderColor = (gender: string | null) => {
   switch (gender) {
     case 'der':
@@ -136,7 +168,7 @@ export function ReviewFlow({ words }: { words: Word[] }) {
     const w = currentWord
     if (!w) return
     if (w.image_url) return
-    if (ABSTRACT_POS.has(w.part_of_speech)) return
+    if (shouldSkipImage(w)) return
     if (fetchedRef.current.has(w.id)) return
 
     fetchedRef.current.add(w.id)
@@ -160,6 +192,7 @@ export function ReviewFlow({ words }: { words: Word[] }) {
   }, [currentWord?.id, currentWord])
 
   const getImage = (w: Word): ImageMeta | null => {
+    if (shouldSkipImage(w)) return null
     if (imageCache.has(w.id)) return imageCache.get(w.id) ?? null
     if (w.image_url && w.image_credit_name && w.image_credit_url) {
       return {
