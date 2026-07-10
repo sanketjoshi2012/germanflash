@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { rateCard } from './actions'
+import type { RatingLabel } from '@/utils/sm2'
 
 export type Word = {
   id: number
@@ -26,24 +28,28 @@ const genderColor = (gender: string | null) => {
   }
 }
 
-const ratings = [
+const ratings: { label: string; value: RatingLabel; className: string }[] = [
   {
     label: 'Again',
+    value: 'again',
     className:
       'bg-red-50 text-red-700 border-red-200 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-300 dark:border-red-900 dark:hover:bg-red-950/50',
   },
   {
     label: 'Hard',
+    value: 'hard',
     className:
       'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900 dark:hover:bg-amber-950/50',
   },
   {
     label: 'Good',
+    value: 'good',
     className:
       'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-900 dark:hover:bg-blue-950/50',
   },
   {
     label: 'Easy',
+    value: 'easy',
     className:
       'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-300 dark:border-green-900 dark:hover:bg-green-950/50',
   },
@@ -143,7 +149,10 @@ export function ReviewFlow({ words }: { words: Word[] }) {
     ? `${article} ${currentWord.german}`
     : currentWord.german
 
-  const advance = () => {
+  const handleRate = (value: RatingLabel) => {
+    void rateCard(currentWord.id, value).catch((err) =>
+      console.error('rateCard failed', err)
+    )
     setFlipped(false)
     setIndex((i) => i + 1)
   }
@@ -243,8 +252,8 @@ export function ReviewFlow({ words }: { words: Word[] }) {
                 <div className="grid grid-cols-4 gap-3">
                   {ratings.map((r) => (
                     <button
-                      key={r.label}
-                      onClick={advance}
+                      key={r.value}
+                      onClick={() => handleRate(r.value)}
                       className={`py-3 text-sm font-medium rounded-lg border transition-colors ${r.className}`}
                     >
                       {r.label}
