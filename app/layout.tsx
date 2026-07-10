@@ -13,8 +13,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "germanflash",
-  description: "Learn German A1 with spaced repetition.",
+  metadataBase: new URL("https://germanflash.vercel.app"),
+  title: {
+    default: "germanflash",
+    template: "%s · germanflash",
+  },
+  description: "Learn German A1 vocabulary with spaced repetition. Free, no ads, no signup wall — just a magic link.",
+  keywords: ["German", "A1", "flashcards", "spaced repetition", "SM-2", "language learning"],
+  authors: [{ name: "Sanket Joshi" }],
+  openGraph: {
+    title: "germanflash",
+    description: "Learn German A1 vocabulary with spaced repetition.",
+    url: "https://germanflash.vercel.app",
+    siteName: "germanflash",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "germanflash",
+    description: "Learn German A1 vocabulary with spaced repetition.",
+  },
 };
 
 export default function RootLayout({
