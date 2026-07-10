@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 
 export type Word = {
@@ -49,12 +49,21 @@ const ratings = [
   },
 ]
 
-function speak(text: string) {
-  if (typeof window === 'undefined' || !window.speechSynthesis) return
-  const utter = new SpeechSynthesisUtterance(text)
-  utter.lang = 'de-DE'
-  window.speechSynthesis.cancel()
-  window.speechSynthesis.speak(utter)
+function pickGermanVoice(): SpeechSynthesisVoice | null {
+  const voices = window.speechSynthesis.getVoices()
+  const preferredNames = [
+    'Anna',
+    'Google Deutsch',
+    'Microsoft Katja',
+    'Microsoft Hedda',
+    'Petra',
+    'Markus',
+  ]
+  for (const name of preferredNames) {
+    const v = voices.find((v) => v.name.includes(name))
+    if (v) return v
+  }
+  return voices.find((v) => v.lang.toLowerCase().startsWith('de')) ?? null
 }
 
 function SpeakerIcon({ size = 18 }: { size?: number }) {
@@ -80,6 +89,29 @@ function SpeakerIcon({ size = 18 }: { size?: number }) {
 export function ReviewFlow({ words }: { words: Word[] }) {
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
+  const germanVoice = useRef<SpeechSynthesisVoice | null>(null)
+  const [voiceReady, setVoiceReady] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return
+    const load = () => {
+      germanVoice.current = pickGermanVoice()
+      setVoiceReady(!!germanVoice.current)
+    }
+    load()
+    window.speechSynthesis.addEventListener('voiceschanged', load)
+    return () => window.speechSynthesis.removeEventListener('voiceschanged', load)
+  }, [])
+
+  const speak = (text: string) => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return
+    const utter = new SpeechSynthesisUtterance(text)
+    utter.lang = 'de-DE'
+    utter.rate = 0.85
+    if (germanVoice.current) utter.voice = germanVoice.current
+    window.speechSynthesis.cancel()
+    window.speechSynthesis.speak(utter)
+  }
 
   const done = index >= words.length
   const currentWord = words[index]
@@ -135,9 +167,9 @@ export function ReviewFlow({ words }: { words: Word[] }) {
         >
           {!flipped ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-4">
-              <div className="flex items-baseline gap-2">
+              <div className="flex items-baseline gap-3">
                 {article && (
-                  <span className={`text-lg font-medium ${artColor}`}>{article}</span>
+                  <span className={`text-3xl font-medium ${artColor}`}>{article}</span>
                 )}
                 <span className="text-4xl font-medium tracking-tight">
                   {currentWord.german}
@@ -153,16 +185,22 @@ export function ReviewFlow({ words }: { words: Word[] }) {
                 }}
                 className="mt-4 w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors"
                 aria-label="Play German audio"
+                disabled={!voiceReady}
               >
                 <SpeakerIcon />
               </button>
+              {!voiceReady && (
+                <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                  No German voice installed on this browser.
+                </p>
+              )}
               <p className="text-[11px] text-zinc-400 mt-auto">tap card to flip</p>
             </div>
           ) : (
             <>
               <div className="flex items-center gap-2 justify-center">
                 {article && (
-                  <span className={`text-sm font-medium ${artColor}`}>{article}</span>
+                  <span className={`text-xl font-medium ${artColor}`}>{article}</span>
                 )}
                 <span className="text-xl font-medium">{currentWord.german}</span>
                 <button
