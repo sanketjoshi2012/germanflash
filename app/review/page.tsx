@@ -32,7 +32,9 @@ export default async function ReviewPage() {
 
   const { data: allWords } = await supabase
     .from('words')
-    .select('id, german, english, gender, part_of_speech, example_de, example_en')
+    .select(
+      'id, german, english, gender, part_of_speech, example_de, example_en, image_url, image_credit_name, image_credit_url'
+    )
     .eq('cefr_level', 'A1')
 
   const words: Word[] = allWords ?? []

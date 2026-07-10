@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { rateCard } from './actions'
+import { fetchAndCacheImage, rateCard, type ImageMeta } from './actions'
 import type { RatingLabel } from '@/utils/sm2'
 
 export type Word = {
@@ -13,7 +13,12 @@ export type Word = {
   part_of_speech: string
   example_de: string | null
   example_en: string | null
+  image_url: string | null
+  image_credit_name: string | null
+  image_credit_url: string | null
 }
+
+const ABSTRACT_POS = new Set(['pronoun', 'particle', 'question', 'adverb', 'number'])
 
 const genderColor = (gender: string | null) => {
   switch (gender) {
@@ -97,6 +102,11 @@ export function ReviewFlow({ words }: { words: Word[] }) {
   const [flipped, setFlipped] = useState(false)
   const germanVoice = useRef<SpeechSynthesisVoice | null>(null)
   const [voiceReady, setVoiceReady] = useState(false)
+  const [imageCache, setImageCache] = useState<Map<number, ImageMeta | null>>(
+    new Map()
+  )
+  const [imageLoading, setImageLoading] = useState<Set<number>>(new Set())
+  const fetchedRef = useRef<Set<number>>(new Set())
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return
@@ -121,6 +131,45 @@ export function ReviewFlow({ words }: { words: Word[] }) {
 
   const done = index >= words.length
   const currentWord = words[index]
+
+  useEffect(() => {
+    const w = currentWord
+    if (!w) return
+    if (w.image_url) return
+    if (ABSTRACT_POS.has(w.part_of_speech)) return
+    if (fetchedRef.current.has(w.id)) return
+
+    fetchedRef.current.add(w.id)
+    setImageLoading((prev) => new Set(prev).add(w.id))
+
+    fetchAndCacheImage(w.id, w.english)
+      .then((meta) => {
+        setImageCache((prev) => new Map(prev).set(w.id, meta))
+      })
+      .catch((err) => {
+        console.error('image fetch failed', err)
+        setImageCache((prev) => new Map(prev).set(w.id, null))
+      })
+      .finally(() => {
+        setImageLoading((prev) => {
+          const next = new Set(prev)
+          next.delete(w.id)
+          return next
+        })
+      })
+  }, [currentWord?.id, currentWord])
+
+  const getImage = (w: Word): ImageMeta | null => {
+    if (imageCache.has(w.id)) return imageCache.get(w.id) ?? null
+    if (w.image_url && w.image_credit_name && w.image_credit_url) {
+      return {
+        image_url: w.image_url,
+        image_credit_name: w.image_credit_name,
+        image_credit_url: w.image_credit_url,
+      }
+    }
+    return null
+  }
 
   if (done) {
     return (
@@ -178,7 +227,25 @@ export function ReviewFlow({ words }: { words: Word[] }) {
           } transition-colors`}
         >
           {!flipped ? (
-            <div className="flex-1 flex flex-col items-center justify-center gap-6">
+            <div className="flex-1 flex flex-col items-center justify-center gap-4">
+              {(() => {
+                const meta = getImage(currentWord)
+                if (meta) {
+                  return (
+                    <img
+                      src={meta.image_url}
+                      alt={currentWord.english}
+                      className="w-full h-56 object-cover rounded-lg mb-2"
+                    />
+                  )
+                }
+                if (imageLoading.has(currentWord.id)) {
+                  return (
+                    <div className="w-full h-56 rounded-lg bg-zinc-100 dark:bg-zinc-800 animate-pulse mb-2" />
+                  )
+                }
+                return null
+              })()}
               <div className="flex items-baseline gap-4">
                 {article && (
                   <span className={`text-4xl font-medium ${artColor}`}>{article}</span>
@@ -263,6 +330,32 @@ export function ReviewFlow({ words }: { words: Word[] }) {
                 <p className="text-[11px] text-zinc-400 text-center">
                   Again = forgot &nbsp;·&nbsp; Hard = struggled &nbsp;·&nbsp; Good = normal &nbsp;·&nbsp; Easy = instant
                 </p>
+                {(() => {
+                  const meta = getImage(currentWord)
+                  if (!meta) return null
+                  return (
+                    <p className="text-[10px] text-zinc-400 text-center pt-2">
+                      Photo by{' '}
+                      <a
+                        href={meta.image_credit_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:text-zinc-600 dark:hover:text-zinc-300"
+                      >
+                        {meta.image_credit_name}
+                      </a>{' '}
+                      on{' '}
+                      <a
+                        href="https://unsplash.com/?utm_source=germanflash&utm_medium=referral"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:text-zinc-600 dark:hover:text-zinc-300"
+                      >
+                        Unsplash
+                      </a>
+                    </p>
+                  )
+                })()}
               </div>
             </>
           )}
