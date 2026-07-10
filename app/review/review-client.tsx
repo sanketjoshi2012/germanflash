@@ -147,8 +147,8 @@ export function ReviewFlow({ words }: { words: Word[] }) {
 
   return (
     <main className="flex flex-1 items-center justify-center px-6 py-8 bg-zinc-50 dark:bg-black">
-      <div className="w-full max-w-md space-y-4">
-        <div className="flex items-center justify-between text-xs text-zinc-500">
+      <div className="w-full max-w-xl space-y-4">
+        <div className="flex items-center justify-between text-sm text-zinc-500">
           <Link href="/" className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors">
             ← home
           </Link>
@@ -159,23 +159,23 @@ export function ReviewFlow({ words }: { words: Word[] }) {
 
         <div
           onClick={() => !flipped && setFlipped(true)}
-          className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 min-h-[380px] flex flex-col ${
+          className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-10 min-h-[520px] flex flex-col ${
             !flipped
               ? 'cursor-pointer hover:border-zinc-300 dark:hover:border-zinc-700'
               : ''
           } transition-colors`}
         >
           {!flipped ? (
-            <div className="flex-1 flex flex-col items-center justify-center gap-4">
-              <div className="flex items-baseline gap-3">
+            <div className="flex-1 flex flex-col items-center justify-center gap-6">
+              <div className="flex items-baseline gap-4">
                 {article && (
-                  <span className={`text-3xl font-medium ${artColor}`}>{article}</span>
+                  <span className={`text-4xl font-medium ${artColor}`}>{article}</span>
                 )}
-                <span className="text-4xl font-medium tracking-tight">
+                <span className="text-6xl font-medium tracking-tight">
                   {currentWord.german}
                 </span>
               </div>
-              <span className="text-[11px] text-zinc-500 uppercase tracking-wider px-3 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-full">
+              <span className="text-xs text-zinc-500 uppercase tracking-wider px-3 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-full">
                 {currentWord.part_of_speech}
               </span>
               <button
@@ -183,64 +183,64 @@ export function ReviewFlow({ words }: { words: Word[] }) {
                   e.stopPropagation()
                   speak(currentWord.german)
                 }}
-                className="mt-4 w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors"
+                className="mt-4 w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 aria-label="Play German audio"
                 disabled={!voiceReady}
               >
-                <SpeakerIcon />
+                <SpeakerIcon size={22} />
               </button>
               {!voiceReady && (
-                <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                <p className="text-xs text-amber-600 dark:text-amber-400">
                   No German voice installed on this browser.
                 </p>
               )}
-              <p className="text-[11px] text-zinc-400 mt-auto">tap card to flip</p>
+              <p className="text-xs text-zinc-400 mt-auto">tap card to flip</p>
             </div>
           ) : (
             <>
-              <div className="flex items-center gap-2 justify-center">
+              <div className="flex items-center gap-3 justify-center">
                 {article && (
-                  <span className={`text-xl font-medium ${artColor}`}>{article}</span>
+                  <span className={`text-2xl font-medium ${artColor}`}>{article}</span>
                 )}
-                <span className="text-xl font-medium">{currentWord.german}</span>
+                <span className="text-2xl font-medium">{currentWord.german}</span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
                     speak(currentWord.german)
                   }}
-                  className="w-6 h-6 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors"
+                  className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors"
                   aria-label="Play German audio"
                 >
-                  <SpeakerIcon size={12} />
+                  <SpeakerIcon size={14} />
                 </button>
               </div>
-              <div className="text-center my-6">
-                <p className="text-3xl font-medium tracking-tight">{currentWord.english}</p>
+              <div className="text-center my-8">
+                <p className="text-5xl font-medium tracking-tight">{currentWord.english}</p>
               </div>
               {currentWord.example_de && (
-                <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-3 mb-6">
-                  <div className="flex items-start gap-2">
-                    <p className="text-sm flex-1">{currentWord.example_de}</p>
+                <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-4 mb-8">
+                  <div className="flex items-start gap-3">
+                    <p className="text-base flex-1">{currentWord.example_de}</p>
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
                         currentWord.example_de && speak(currentWord.example_de)
                       }}
-                      className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 flex items-center justify-center flex-shrink-0 transition-colors"
+                      className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 flex items-center justify-center flex-shrink-0 transition-colors"
                       aria-label="Play example sentence"
                     >
-                      <SpeakerIcon size={12} />
+                      <SpeakerIcon size={14} />
                     </button>
                   </div>
-                  <p className="text-xs text-zinc-500 mt-1">{currentWord.example_en}</p>
+                  <p className="text-sm text-zinc-500 mt-2">{currentWord.example_en}</p>
                 </div>
               )}
-              <div className="grid grid-cols-4 gap-2 mt-auto">
+              <div className="grid grid-cols-4 gap-3 mt-auto">
                 {ratings.map((r) => (
                   <button
                     key={r.label}
                     onClick={advance}
-                    className={`py-2 text-xs font-medium rounded-lg border transition-colors ${r.className}`}
+                    className={`py-3 text-sm font-medium rounded-lg border transition-colors ${r.className}`}
                   >
                     {r.label}
                   </button>
